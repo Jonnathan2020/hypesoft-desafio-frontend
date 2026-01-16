@@ -1,25 +1,26 @@
 import { Button } from "@/components/ui/button"
 import {Sheet, SheetTrigger, SheetContent} from "@/components/ui/sheet"
-import {Home, Link, Package, PanelBottom, ChartNoAxesCombined, ShoppingBag, Blocks} from "lucide-react"
+import Link from "next/link";
+import {Home, Package, PanelBottom, ChartNoAxesCombined, ShoppingBag, Blocks, Airplay} from "lucide-react"
 import {TooltipProvider, Tooltip, TooltipTrigger, TooltipContent} from "@/components/ui/tooltip"
 
 export function Sidebar(){
     return(
         <div className="flex w-full flex-col bg-muted/40">
+            <aside className="fixed inset-y-0 left-0 z-10 hidden w-48 border-r bg-background sm:flex">
+                <nav className="flex flex-col gap-2 px-4 py-5">
 
-            <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 border-r bg-background sm:flex">
-                <nav className="flex flex-col items-center gap-4 px-2 py-5">
                     <TooltipProvider>
-                        <a href="#" className="flex h-9 w-9 shrink-0 items-center justify-center bg-primary text-primary-foreground rounded-full">
-                            <Package className="h-4 w-4"/>
-                            <span className="sr-only">Gestor de Produtos</span>
-                        </a>
+                        <Link href="/home" className="flex items-center gap-3 rounded-lg px-3 py-2 text-green-600 hover:text-foreground hover:bg-muted transition">
+                            <Airplay className="h-5 w-5"/>
+                            <span className="Logo text-sm font-medium">Gestor de Produtos</span>
+                        </Link>
 
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <a href="#" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground">
+                                <a href="/home" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-muted transition">
                                     <Home className="h-5 w-5"/>
-                                    <span className="sr-only">Home</span>
+                                    <span className="text-sm font-medium">Home</span>
                                 </a>                                
                             </TooltipTrigger>
                             <TooltipContent side="right">Início</TooltipContent>
@@ -27,19 +28,19 @@ export function Sidebar(){
 
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <a href="#" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground">
+                                <Link href="/dashboard" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-muted transition">
                                     <ChartNoAxesCombined className="h-5 w-5"/>
-                                    <span className="sr-only">Dashboard</span>
-                                </a>                                
+                                    <span className="text-sm font-medium">Dashboard</span>
+                                </Link>                                
                             </TooltipTrigger>
                             <TooltipContent side="right">Dashboard</TooltipContent>
                         </Tooltip>
 
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <a href="#" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground">
+                                <a href="/products" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-muted transition">
                                     <ShoppingBag className="h-5 w-5"/>
-                                    <span className="sr-only">Produtos</span>
+                                    <span className="text-sm font-medium">Produtos</span>
                                 </a>                                
                             </TooltipTrigger>
                             <TooltipContent side="right">Produtos</TooltipContent>
@@ -47,15 +48,23 @@ export function Sidebar(){
 
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <a href="#" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground">
+                                <a href="/categories" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-muted transition">
                                     <Blocks className="h-5 w-5"/>
-                                    <span className="sr-only">Categorias</span>
+                                    <span className="text-sm font-medium">Categorias</span>
                                 </a>                                
                             </TooltipTrigger>
                             <TooltipContent side="right">Categorias</TooltipContent>
                         </Tooltip>
 
-                        
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <a href="/stock" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-muted transition">
+                                    <Package className="h-5 w-5"/>
+                                    <span className="text-sm font-medium">Estoque</span>
+                                </a>                                
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Estoque</TooltipContent>
+                        </Tooltip>
 
                     </TooltipProvider>
 
@@ -77,13 +86,10 @@ export function Sidebar(){
 
                         <SheetContent side="left" className="sm:max-w-x">
                             <nav className="grid gap-6 text-lg font-medium">
-                                <a //Logo
-                                    href="#"
-                                    className="flex h-10 w-10 bg-primary rounded-full text-lg items-center justify-center text-primary-foreground md:text-base gap-2"
-                                    >   
-                                    <Package className="h-5 w-5 transition-all"/>
-                                    <span className="sr-only">Logo</span>
-                                </a>
+                                <Link href="/home" className="flex items-center gap-3 rounded-lg px-3 py-2 text-green-600 hover:text-foreground hover:bg-muted transition">
+                                    <Airplay className="h-5 w-5"/>
+                                    <span className="Logo text-sm font-medium">Gestor de Produtos</span>
+                                </Link>
 
                                 <a //Home
                                     href="#"
@@ -127,7 +133,6 @@ export function Sidebar(){
                             </nav>
                         </SheetContent>
                     </Sheet>
-                    <h2>menu</h2>
                 </header>
             </div>
         </div>

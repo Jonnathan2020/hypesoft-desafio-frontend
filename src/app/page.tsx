@@ -1,14 +1,12 @@
-import Image from "next/image";
-import { Button } from "../components/ui/button";
+import ChartOverview from "@/components/charts/totalProducts/index";
+import { ItemsLowStock } from "@/components/layout/itemsLowStock";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Package2, PackageMinus, PackageOpen } from "lucide-react";
 
 export default function Home() {
+  
+  const num = 999
   return (
-    <main className="sm:ml-14 p-4">
-      <section className="grid grid-cols-2 gap-4">
-        <h1 className="text-2x1">Gestor de Produtos</h1>
-      </section>
-    </main>
-      
-    
+    <Home/>
   );
 }
