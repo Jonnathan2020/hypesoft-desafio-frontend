@@ -4,9 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Package2, PackageMinus, PackageOpen } from "lucide-react";
 
 export default function Home() {
-  
-  const num = 999
   return (
-    <Home/>
+    //<Home/>
+    <h1>Testes</h1>
   );
 }

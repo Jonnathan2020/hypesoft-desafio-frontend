@@ -1,38 +1,62 @@
 "use client";
 
-import { useState } from "react";
+import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct, Produto } from "@/hooks/useProducts";
+import { useCategories } from "@/hooks/useCategories";
+import { CreateProductRequest } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ItemsLowStock } from "@/components/layout/itemsLowStock";
 import ProductsTable from "@/components/layout/ProductsTable";
-import AddProduct, { Produto } from "@/components/forms/AddProduct";
+import AddProduct from "@/components/forms/AddProduct";
+import { toast } from "sonner";
+import { useDashboard } from "@/hooks/useDashboard";
 
 export default function Stock() {
-  // Estado com produtos de exemplo
-  const [produtos, setProdutos] = useState<Produto[]>([
-    { nome: "Cabo HDMI", descricao: "Cabo 2 metros", custo:10, preco: 50, categoria: "Eletrônicos", estoque: 10 },
-    { nome: "Mouse USB", descricao: "Mouse óptico USB",custo:5, preco: 30, categoria: "Periféricos", estoque: 5 },
-    { nome: "Teclado Mecânico", descricao: "Teclado RGB",custo:60, preco: 120, categoria: "Periféricos", estoque: 3 },
-    { nome: "Fone Bluetooth", descricao: "Fone sem fio",custo:99, preco: 200, categoria: "Eletrônicos", estoque: 7 },
-    { nome: "Mousepad", descricao: "Mousepad Gamer",custo:1, preco: 20, categoria: "Acessórios", estoque: 15 },
-  ]);
+  const { data: produtos = [], isLoading: produtosLoading } = useProducts();
+  const { data: categorias = [], isLoading: categoriasLoading } = useCategories();
+  const { data: dashboardData } = useDashboard();
 
-  // Adicionar produto
+  const createProduct = useCreateProduct();
+  const updateProduct = useUpdateProduct();
+  const deleteProduct = useDeleteProduct();
+
+  // Produtos com estoque baixo (limite <= 5)
+  const produtosBaixoEstoque = produtos?.filter((p: Produto) => p.quantidadeEstoque <= 5) || [];
+
+  // Mapeia o nome da categoria para o ID correto
+  function mapCategoriaToId(nome: string): string {
+    const cat = categorias.find((c: { nome: string; id: string }) => c.nome === nome);
+    return cat?.id || "";
+  }
+
   const handleAddProduct = (produto: Produto) => {
-    setProdutos((prev) => [...prev, produto]);
+    const createRequest: CreateProductRequest = {
+      nome: produto.nome,
+      descricao: produto.descricao,
+      custo: produto.custo,
+      preco: produto.preco,
+      categoriaId: mapCategoriaToId(produto.categoriaId || ""), // aqui usamos categoriaNome
+      quantidadeEstoque: produto.quantidadeEstoque,
+    };
+
+    createProduct.mutate(createRequest, {
+      onSuccess: () => toast.success("Produto criado com sucesso!"),
+      onError: (err: any) => toast.error(err?.message || "Erro ao criar produto"),
+    });
   };
 
-  // Editar produto
   const handleEditProduct = (index: number, produtoAtualizado: Produto) => {
-    const updated = [...produtos];
-    updated[index] = produtoAtualizado;
-    setProdutos(updated);
+    updateProduct.mutate(produtoAtualizado, {
+      onSuccess: () => toast.success("Produto atualizado com sucesso!"),
+      onError: (err: any) => toast.error(err?.message || "Erro ao atualizar produto"),
+    });
   };
 
-  // Excluir produto
   const handleDeleteProduct = (index: number) => {
-    const updated = [...produtos];
-    updated.splice(index, 1);
-    setProdutos(updated);
+    const produto = produtos[index];
+    deleteProduct.mutate(produto.id, {
+      onSuccess: () => toast.success("Produto excluído com sucesso!"),
+      onError: (err: any) => toast.error(err?.message || "Erro ao excluir produto"),
+    });
   };
 
   return (
@@ -41,32 +65,45 @@ export default function Stock() {
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 select-none">
           Estoque
         </h1>
-        <p className="text-gray-500 mt-1">
-          Painel de inventário de estoque
-        </p>
+        <p className="text-gray-500 mt-1">Painel de inventário de estoque</p>
       </header>
 
-      {/* Itens de estoque baixo */}
-      <section className="mb-4">
-        <ItemsLowStock/>
-      </section>
+      {/* Produtos com estoque baixo */}
+      {dashboardData?.produtosEstoqueBaixo?.length > 0 && (
+        <section className="mb-6">
+          <ItemsLowStock produtos={dashboardData.produtosEstoqueBaixo.map((p: { id: any; nome: any; quantidadeEstoque: any; }) => ({
+            id: p.id,
+            nome: p.nome,
+            quantidadeEstoque: p.quantidadeEstoque
+          }))} />
+        </section>
+      )}
 
-      {/* Card de produtos com tabela */}
-      <section className="mb-4">
+
+
+      {/* Card com tabela de produtos */}
+      <section className="mb-6">
         <Card>
           <CardHeader className="flex justify-between items-center">
             <CardTitle className="text-lg sm:text-xl text-gray-800 select-none">
               Produtos em Estoque
             </CardTitle>
-            {/* Botão para adicionar produto */}
-            <AddProduct onAdd={handleAddProduct} />
           </CardHeader>
+
           <CardContent>
-            <ProductsTable
-              produtos={produtos}
-              onEdit={handleEditProduct}
-              onDelete={handleDeleteProduct}
-            />
+            {produtosLoading ? (
+              <p className="text-gray-500">Carregando produtos...</p>
+            ) : (
+              <ProductsTable
+                produtos={produtos.map((p: { categoriaId: any; }) => ({
+                  ...p,
+                  categoriaNome: categorias.find((c: { id: any; }) => c.id === p.categoriaId)?.nome || "—"
+                }))}
+                onEdit={handleEditProduct}
+                onDelete={handleDeleteProduct}
+              />
+            )}
+
           </CardContent>
         </Card>
       </section>

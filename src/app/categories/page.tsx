@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit2, Trash2 } from "lucide-react";
+import { PlusCircle, Edit2, Trash2, Edit } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -25,9 +25,11 @@ interface Categoria {
 
 export default function Categories() {
   const [categorias, setCategorias] = useState<Categoria[]>([
-    { id: 1, nome: "Eletrônicos", descricao: "Aparelhos e gadgets", quantidadeProdutos: 12 },
-    { id: 2, nome: "Periféricos", descricao: "Teclados, mouses e afins", quantidadeProdutos: 8 },
-    { id: 3, nome: "Acessórios", descricao: "Cabos, suportes e cases", quantidadeProdutos: 15 },
+    { id: 1, nome: "Mercearia", descricao: "Mercearia em geral", quantidadeProdutos: 12 },
+    { id: 2, nome: "Bebidas", descricao: "Aguas, refrigerantes e alcoolicos", quantidadeProdutos: 8 },
+    { id: 3, nome: "Eletrônicos", descricao: "Eletronicos de consumo", quantidadeProdutos: 15 },
+    { id: 3, nome: "Eletrodomésticos", descricao: "Eletrodomesticos em geral", quantidadeProdutos: 26 },
+    { id: 3, nome: "jogos", descricao: "Games Diversos", quantidadeProdutos: 32 },
   ]);
 
   // --- ESTADOS DO DIALOG ---
@@ -163,7 +165,8 @@ export default function Categories() {
                       <Dialog open={openEdit} onOpenChange={setOpenEdit}>
                         <DialogTrigger asChild>
                           <Button
-                            className="bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-1"
+                            variant="outline" 
+                            className=" items-center gap-1"
                             onClick={() => {
                               setCategoriaAtual(cat);
                               setNome(cat.nome);
@@ -171,7 +174,7 @@ export default function Categories() {
                               setOpenEdit(true);
                             }}
                           >
-                            <Edit2 className="h-5 w-5" />
+                            <Edit className="h-5 w-5" />
                             Editar
                           </Button>
                         </DialogTrigger>

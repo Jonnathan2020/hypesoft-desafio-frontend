@@ -1,11 +1,75 @@
+"use client";
+
 import ChartOverview from "@/components/charts/totalProducts/index";
 import { ItemsLowStock } from "@/components/layout/itemsLowStock";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CircleDollarSign, Package2, PackageMinus, PackageOpen } from "lucide-react";
+import api, { apiService } from "@/services/api"
+import { useEffect, useState } from "react";
+import Dashboard from "../dashboard/page";
+
+console.log("API IMPORTADA É:", api);
+
+type Dashboard = {
+  totalProdutos: number;
+  totalCusto: number;
+  totalValores: number;
+  produtosEstoqueBaixo: Object;
+  totalCategorias: number;
+}
+
+type Produto = {
+  nome : string;
+  descricao : string;
+  custo : number;
+  preco : number;
+  categoriaId : string;
+  quantidadeEstoque : number;
+};
 
 export default function Home() {
   
-  const num = 999
+  const [produto, setProduto] = useState<Produto>();
+  const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [stats, setStats] = useState<Dashboard>();
+  const [loading, setLoading] = useState(true);
+  const [totalEstoque, setTotalEstoque] = useState(0);
+  const num = 100;
+  
+  //Dashboard
+  useEffect(() => {
+    async function loadDashboard() {
+      try {
+        const data = await apiService.getDashboardStats();
+        setStats(data);
+      } catch (error) {
+        console.error("Erro ao carregar dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadDashboard();
+  }, []); // 👈 IMPORTANTE: array vazio (SEM LOOP)
+  
+  //Produto
+  useEffect(() => {
+    async function loadProduto() {
+      try {
+        const data = await apiService.getProducts();
+        setProduto(data);
+      } catch (error) {
+        console.error("Erro ao carregar produto:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    loadProduto();
+  }, []); // 👈 IMPORTANTE: array vazio (SEM LOOP)
+  if (loading) return <p>Carregando...</p>;
+  
+  
   return (
     <main className="sm:ml-48 p-4">
       <header className="mb-6">
@@ -32,7 +96,7 @@ export default function Home() {
           </CardHeader>
 
           <CardContent>
-            <p className="text-base sm:text-lg font-bold">{num}</p>
+            <p className="text-base sm:text-lg font-bold">{stats?.totalProdutos}</p>
           </CardContent>
         </Card>
 
@@ -65,12 +129,12 @@ export default function Home() {
             </div>
 
             <CardDescription>
-              Total de custo em estoque
+              Total de Preco em estoque
             </CardDescription>
           </CardHeader>
 
           <CardContent>
-            <p className="text-base sm:text-lg font-bold">R${num}</p>
+            <p className="text-base sm:text-lg font-bold">R${stats?.totalValores}</p>
           </CardContent>
         </Card>
 
@@ -89,7 +153,7 @@ export default function Home() {
           </CardHeader>
 
           <CardContent>
-            <p className="text-base sm:text-lg font-bold">{num}</p>
+            <p className="text-base sm:text-lg font-bold">{}</p>
           </CardContent>
         </Card>
       </section>

@@ -1,84 +1,120 @@
 "use client";
 
-import { Produto } from "@/components/forms/AddProduct";
-import SearchForm from "@/components/forms/searchForm/"
+import { useState, useMemo } from "react";
+import SearchForm from "@/components/forms/searchForm/";
 import ProductsTable from "@/components/layout/ProductsTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search } from "lucide-react";
-import { useState } from "react";
-
-  
-interface ProductsTableProps {
-    produtos: Produto[];
-  }
-  
+import { Produto, useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } from "@/hooks/useProducts";
+import { useCategories } from "@/hooks/useCategories";
 
 export default function Products() {
-  const [searchResults, setSearchResults] = useState<Produto[]>([]);
+  const [busca, setBusca] = useState("");
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState("All");
 
-  // Dados de exemplo
-  const [produtos, setProdutos] = useState<Produto[]>([
-    { nome: "Cabo HDMI", descricao: "Cabo 2 metros", custo:10, preco: 50, categoria: "Eletrônicos", estoque: 10 },
-    { nome: "Mouse USB", descricao: "Mouse óptico USB",custo:5, preco: 30, categoria: "Periféricos", estoque: 5 },
-    { nome: "Teclado Mecânico", descricao: "Teclado RGB",custo:60, preco: 120, categoria: "Periféricos", estoque: 3 },
-    { nome: "Fone Bluetooth", descricao: "Fone sem fio",custo:99, preco: 200, categoria: "Eletrônicos", estoque: 7 },
-    { nome: "Mousepad", descricao: "Mousepad Gamer",custo:1, preco: 20, categoria: "Acessórios", estoque: 15 },
-  ]);
-  const categories = ["All", "Eletrônicos", "Periféricos", "Acessórios"];
+  // Hook de produtos
+  const { data: produtos = [], isLoading: produtosLoading } = useProducts(
+    1,
+    100,
+    busca,
+    categoriaSelecionada !== "All" ? categoriaSelecionada : undefined
+  );
 
-  // Função para filtrar produtos
-  const handleSearch = (term: string, category: string) => {
-    const filtered = produtos.filter((p) => {
-      const matchName = p.nome.toLowerCase().includes(term.toLowerCase());
-      const matchCategory = category === "All" || p.categoria === category;
-      return matchName && matchCategory;
-    });
-    setSearchResults(filtered);
+  const createProduct = useCreateProduct();
+  const updateProduct = useUpdateProduct();
+  const deleteProduct = useDeleteProduct();
+
+  // Hook de categorias
+  const { data: categorias = [], isLoading: categoriasLoading } = useCategories();
+
+  // Funções para SearchForm
+  const handleSearch = (termo: string, categoria: string) => {
+    setBusca(termo);
+    setCategoriaSelecionada(categoria);
   };
 
   const handleAddProduct = (produto: Produto) => {
-    setProdutos((prev) => [...prev, produto]); // adiciona automaticamente na tabela
+    createProduct.mutate({
+      nome: produto.nome,
+      descricao: produto.descricao,
+      preco: produto.preco,
+      custo: produto.custo,
+      categoriaId: produto.categoriaId,
+      quantidadeEstoque: produto.quantidadeEstoque,
+    });
   };
 
-  
+  // Funções para ProductsTable
+  const handleEditProduct = (index: number, produtoAtualizado: Produto) => {
+    updateProduct.mutate({
+      id: produtoAtualizado.id,
+      nome: produtoAtualizado.nome,
+      descricao: produtoAtualizado.descricao,
+      preco: produtoAtualizado.preco,
+      custo: produtoAtualizado.custo,
+      categoriaId: produtoAtualizado.categoriaId,
+      quantidadeEstoque: produtoAtualizado.quantidadeEstoque,
+    });
+  };
+
+  const handleDeleteProduct = (index: number) => {
+    const produto = produtos[index];
+    if (produto) {
+      deleteProduct.mutate(produto.id);
+    }
+  };
+
+  // Mapeia produtos para incluir nome da categoria e estoque
+  const produtosComCategoriaNome = useMemo(() => {
+    return produtos.map((p: { categoriaId: any; quantidadeEstoque: any; }) => {
+      const categoria = categorias.find((c: { id: any; }) => c.id === p.categoriaId);
+      return {
+        ...p,
+        categoriaNome: categoria ? categoria.nome : "Desconhecida",
+        estoque: p.quantidadeEstoque,
+      };
+    });
+  }, [produtos, categorias]);
+
+  if (produtosLoading) return <p>Carregando produtos...</p>;
 
   return (
     <main className="sm:ml-48 p-4">
       <header className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 select-none">
-          Produtos
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 select-none">Produtos</h1>
         <p className="text-gray-500 mt-1">Painel de controle de Produtos</p>
       </header>
 
-      
+      {/* Search */}
       <section className="grid grid-cols-1 lg:grid-cols-1 gap-4 mb-4">
-      <Card className="">
+        <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
               <Search className="w-5 h-5 text-gray-400" />
-              <CardTitle className="sm:text-xl text-gray-400 select-none">
-                Pesquisa Simples
-              </CardTitle>
+              <CardTitle className="sm:text-xl text-gray-400 select-none">Pesquisa Simples</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
-            <SearchForm categories={categories} onSearch={handleSearch} onAddProduct={handleAddProduct} />
+            <SearchForm
+              categories={["All", ...categorias.map((c: any) => c.nome)]}
+              onSearch={handleSearch}
+              onAddProduct={handleAddProduct}
+            />
           </CardContent>
         </Card>
       </section>
 
-       {/* Tabela de resultados */}
-       <Card className="">
+      {/* Tabela */}
+      <Card>
         <CardHeader>
           <CardTitle className="text-lg sm:text-xl text-gray-800">Resultados</CardTitle>
         </CardHeader>
         <CardContent>
-          <ProductsTable produtos={searchResults} onEdit={function (index: number, produtoAtualizado: Produto): void {
-                      throw new Error("Function not implemented.");
-                  } } onDelete={function (index: number): void {
-                      throw new Error("Function not implemented.");
-                  } } />
+          <ProductsTable
+            produtos={produtosComCategoriaNome}
+            onEdit={handleEditProduct}
+            onDelete={handleDeleteProduct}
+          />
         </CardContent>
       </Card>
     </main>

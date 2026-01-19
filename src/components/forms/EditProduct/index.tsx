@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Edit } from "lucide-react";
-import { Produto } from "@/components/forms/AddProduct";
+import { Produto } from "@/hooks/useProducts";
 
 interface EditProductProps {
   produto: Produto;
@@ -17,26 +17,28 @@ export default function EditProduct({ produto, onEdit }: EditProductProps) {
   const [open, setOpen] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
 
+  const [id, setId] = useState(produto.id);
   const [nome, setNome] = useState(produto.nome);
   const [descricao, setDescricao] = useState(produto.descricao);
-  const [categoria, setCategoria] = useState(produto.categoria);
+  const [categoriaId, setCategoria] = useState(produto.categoriaId);
   const [custo, setCusto] = useState(produto.custo);
   const [preco, setPreco] = useState(produto.preco);
-  const [estoque, setEstoque] = useState(produto.estoque);
+  const [quantidadeEstoque, setEstoque] = useState(produto.quantidadeEstoque);
 
   const categories = ["Eletrônicos", "Periféricos", "Acessórios"];
 
   useEffect(() => {
+    setId(produto.id);
     setNome(produto.nome);
     setDescricao(produto.descricao);
-    setCategoria(produto.categoria);
+    setCategoria(produto.categoriaId);
     setCusto(produto.custo);
     setPreco(produto.preco);
-    setEstoque(produto.estoque);
+    setEstoque(produto.quantidadeEstoque);
   }, [produto]);
 
   const handleSubmit = () => {
-    const produtoAtualizado: Produto = { nome, descricao, categoria, custo, preco, estoque };
+    const produtoAtualizado: Produto = { id, nome, descricao, categoriaId, custo, preco, quantidadeEstoque };
     onEdit(produtoAtualizado);
 
     setAlertVisible(true);
@@ -71,7 +73,7 @@ export default function EditProduct({ produto, onEdit }: EditProductProps) {
             </div>
             <div className="flex flex-col">
               <Label>Categoria</Label>
-              <select value={categoria} onChange={(e) => setCategoria(e.target.value)} className="w-full rounded border border-gray-300 px-3 py-2">
+              <select value={categoriaId} onChange={(e) => setCategoria(e.target.value)} className="w-full rounded border border-gray-300 px-3 py-2">
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
@@ -87,7 +89,7 @@ export default function EditProduct({ produto, onEdit }: EditProductProps) {
             </div>
             <div className="flex flex-col">
               <Label>Estoque</Label>
-              <Input type="number" value={estoque} onChange={(e) => setEstoque(Number(e.target.value))} />
+              <Input type="number" value={quantidadeEstoque} onChange={(e) => setEstoque(Number(e.target.value))} />
             </div>
           </div>
 

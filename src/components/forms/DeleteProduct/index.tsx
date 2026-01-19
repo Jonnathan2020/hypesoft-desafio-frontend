@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Trash2 } from "lucide-react";
-import { Produto } from "@/components/forms/AddProduct";
+import { Produto } from "@/hooks/useProducts";
 
 interface DeleteProductProps {
   produto: Produto;
